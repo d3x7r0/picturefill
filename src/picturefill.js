@@ -7,9 +7,23 @@
 	// Enable strict mode
 	"use strict";
 
+	// Code to expose the module as a CommonJS or AMD module or a browser global
+	var expose = function expose(fn) {
+		if ( typeof module === "object" && typeof module.exports === "object" ) {
+			// CommonJS, just export
+			module.exports = fn;
+		} else if ( typeof define === "function" && define.amd ){
+			// AMD support
+			define( function() { return fn; } );
+		} else if ( typeof w === "object" ) {
+			// If no AMD and we are in the browser, attach to window
+			w.picturefill = fn;
+		}
+	};
+
 	// If picture is supported, well, that's awesome. Let's get outta here...
 	if ( w.HTMLPictureElement ) {
-		w.picturefill = function() { };
+		expose(function() {});
 		return;
 	}
 
@@ -581,15 +595,6 @@
 	picturefill._ = pf;
 
 	/* expose picturefill */
-	if ( typeof module === "object" && typeof module.exports === "object" ) {
-		// CommonJS, just export
-		module.exports = picturefill;
-	} else if ( typeof define === "function" && define.amd ){
-		// AMD support
-		define( function() { return picturefill; } );
-	} else if ( typeof w === "object" ) {
-		// If no AMD and we are in the browser, attach to window
-		w.picturefill = picturefill;
-	}
+	expose(picturefill);
 
 } )( this, this.document );
